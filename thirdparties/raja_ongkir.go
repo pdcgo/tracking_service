@@ -19,7 +19,7 @@ func NewRajaOngkirTracker(keys *raja_ongkir.ApiKey) common_helper.NextHandlerPar
 	return func(next common_helper.NextFuncParam[*TrackProcess]) common_helper.NextFuncParam[*TrackProcess] {
 		return func(data *TrackProcess) error {
 			req := data.Req
-			trackInfo := data.Res.TrackInfo
+			trackInfo := data.Res
 
 			// setting thirdparty
 			trackInfo.Thirdparties = append(trackInfo.Thirdparties, tracking_iface.Thirdparty_THIRDPARTY_RAJAONGKIR)

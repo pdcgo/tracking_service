@@ -3,6 +3,7 @@ package thirdparties
 import (
 	"fmt"
 
+	"github.com/pdcgo/shared/configs"
 	"github.com/pdcgo/shared/pkg/common_helper"
 	"github.com/pdcgo/shared/pkg/raja_ongkir"
 )
@@ -12,10 +13,12 @@ type MultipleTrackerConfig struct {
 	RajaOngkirKey          []string
 }
 
-func NewMultipleTracker(cfg *MultipleTrackerConfig) common_helper.NextFuncParam[*TrackProcess] {
+func NewMultipleTracker(cfg *configs.AppConfig) common_helper.NextFuncParam[*TrackProcess] {
+	trackingCfg := cfg.TrackingService
+
 	spxTracker := NewSpxUndergroundTracker()
-	toniTracker := NewToniUndergroundTracker(cfg.ToniUndergroundEnpoint)
-	rajaOngkirTracker := NewRajaOngkirTracker(raja_ongkir.NewApiKey(cfg.RajaOngkirKey))
+	toniTracker := NewToniUndergroundTracker(trackingCfg.ToniUndergroundEnpoint)
+	rajaOngkirTracker := NewRajaOngkirTracker(raja_ongkir.NewApiKey(trackingCfg.RajaOngkirKey))
 
 	spxPriority := common_helper.NewChainParam(
 		spxTracker,

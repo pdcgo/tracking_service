@@ -1,0 +1,1 @@
+gcloud run jobs deploy order-check-job --source . --args=check_order

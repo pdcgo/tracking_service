@@ -20,7 +20,7 @@ func NewSpxUndergroundTracker() common_helper.NextHandlerParam[*TrackProcess] {
 		return func(data *TrackProcess) error {
 			var err error
 			req := data.Req
-			trackInfo := data.Res.TrackInfo
+			trackInfo := data.Res
 			trackInfo.Thirdparties = append(trackInfo.Thirdparties, tracking_iface.Thirdparty_THIRDPARTY_SPX_UNDERGROUND)
 
 			res, err := spxClient.Track(req.Receipt)

@@ -29,7 +29,7 @@ func NewToniUndergroundTracker(endpoint string) common_helper.NextHandlerParam[*
 			var err error
 
 			req := data.Req
-			trackInfo := data.Res.TrackInfo
+			trackInfo := data.Res
 
 			// setting thirdparty
 			trackInfo.Thirdparties = append(trackInfo.Thirdparties, tracking_iface.Thirdparty_THIRDPARTY_TONI_UNDERGROUND)

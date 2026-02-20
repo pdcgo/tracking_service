@@ -2,11 +2,9 @@ package tracking
 
 import (
 	"context"
-	"errors"
 
 	"connectrpc.com/connect"
 	"github.com/pdcgo/schema/services/tracking_iface/v1"
-	"github.com/pdcgo/shared/pkg/common_helper"
 	"github.com/pdcgo/tracking_service/thirdparties"
 )
 
@@ -25,45 +23,47 @@ func (t *trackingServiceImpl) TrackingGet(
 		},
 	}
 
-	trackProcess := &thirdparties.TrackProcess{Req: pay, Res: &res, Error: nil}
+	trackProcess := &thirdparties.TrackProcess{Req: pay.Payload, Res: res.TrackInfo, Error: nil}
 
-	err = common_helper.NewChain(
-		func(next common_helper.NextFunc) common_helper.NextFunc {
-			return func() error { // checking tracking
-				err := t.tracker(trackProcess)
-				if err != nil {
-					return err
-				}
+	// err = common_helper.NewChain(
+	// 	func(next common_helper.NextFunc) common_helper.NextFunc {
+	// 		return func() error { // checking tracking
+	// 			err := t.tracker(trackProcess)
+	// 			if err != nil {
+	// 				return err
+	// 			}
 
-				return next()
-			}
-		},
-		func(next common_helper.NextFunc) common_helper.NextFunc {
-			return func() error { // removing tag order
-				return next()
-			}
-		},
-		func(next common_helper.NextFunc) common_helper.NextFunc {
-			return func() error { // filtering jika tidak ada order
-				return next()
-			}
-		},
-		func(next common_helper.NextFunc) common_helper.NextFunc {
-			return func() error { // getting order dan transaksi
-				return next()
-			}
-		},
-		func(next common_helper.NextFunc) common_helper.NextFunc {
-			return func() error { // tagging order
-				return next()
-			}
-		},
-	)
+	// 			return next()
+	// 		}
+	// 	},
+	// 	func(next common_helper.NextFunc) common_helper.NextFunc {
+	// 		return func() error { // removing tag order
+	// 			return next()
+	// 		}
+	// 	},
+	// 	func(next common_helper.NextFunc) common_helper.NextFunc {
+	// 		return func() error { // filtering jika tidak ada order
+	// 			return next()
+	// 		}
+	// 	},
+	// 	func(next common_helper.NextFunc) common_helper.NextFunc {
+	// 		return func() error { // getting order dan transaksi
+	// 			return next()
+	// 		}
+	// 	},
+	// 	func(next common_helper.NextFunc) common_helper.NextFunc {
+	// 		return func() error { // tagging order
+	// 			return next()
+	// 		}
+	// 	},
+	// )
+
+	err = t.tracker(trackProcess)
 
 	if err != nil {
 		return connect.NewResponse(&res), err
 	}
 
-	return connect.NewResponse(&res), errors.New("not implemented")
+	return connect.NewResponse(&res), nil
 
 }

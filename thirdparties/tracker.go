@@ -5,8 +5,8 @@ import (
 )
 
 type TrackProcess struct {
-	Req   *tracking_iface.TrackingGetRequest
-	Res   *tracking_iface.TrackingGetResponse
+	Req   *tracking_iface.TrackingPayload
+	Res   *tracking_iface.TrackInfo
 	Error error
 }
 
