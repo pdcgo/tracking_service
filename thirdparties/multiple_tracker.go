@@ -33,33 +33,33 @@ func NewMultipleTracker(cfg *configs.AppConfig) common_helper.NextFuncParam[*Tra
 		fallbackErr,
 	)
 
-	return func(data *TrackProcess) error {
+	return func(data *TrackProcess) (*TrackProcess, error) {
 		var err error
 		req := data.Req
 
 		switch req.ShippingId {
 		case 7, 8:
-			err = spxPriority(data)
+			_, err = spxPriority(data)
 		case 39, 0:
-			return fmt.Errorf("shipping id %d unsupported", req.ShippingId)
+			return data, fmt.Errorf("shipping id %d unsupported", req.ShippingId)
 		default:
-			err = defaultPriority(data)
+			_, err = defaultPriority(data)
 
 		}
 
 		if err != nil {
-			return err
+			return data, err
 		}
 
-		return nil
+		return data, nil
 	}
 }
 
 func fallbackErr(next common_helper.NextFuncParam[*TrackProcess]) common_helper.NextFuncParam[*TrackProcess] {
-	return func(data *TrackProcess) error {
+	return func(data *TrackProcess) (*TrackProcess, error) {
 		if data.Error != nil {
-			return data.Error
+			return data, data.Error
 		}
-		return nil
+		return data, nil
 	}
 }

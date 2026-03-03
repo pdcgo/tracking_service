@@ -31,7 +31,7 @@ func (t *trackingServiceImpl) TrackingProcess(
 	err = common_helper.NewChain(
 		func(next common_helper.NextFunc) common_helper.NextFunc {
 			return func() error { // checking tracking
-				err := t.tracker(trackProcess)
+				_, err := t.tracker(trackProcess)
 				if err != nil {
 					return err
 				}

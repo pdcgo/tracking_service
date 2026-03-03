@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/pdcgo/schema/services/tracking_iface/v1"
 	"github.com/pdcgo/schema/services/tracking_iface/v1/tracking_ifaceconnect"
+	"github.com/pdcgo/shared/pkg/cloud_logging"
 	"github.com/urfave/cli/v3"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/codes"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +22,10 @@ func NewCheckOrder(
 
 	return func(ctx context.Context, c *cli.Command) error {
 		var err error
+
+		if !c.Bool("log-local") {
+			cloud_logging.SetCloudLoggingDefault()
+		}
 
 		// checking shipped
 		err = ProcessShipped(ctx, db, trackingClient)
@@ -50,9 +54,9 @@ func ProcessShipped(
 	trackingClient tracking_ifaceconnect.TrackingServiceClient,
 ) error {
 	// getting tracer
-	trace := otel.Tracer("")
-	spanCtx, span := trace.Start(ctx, "bulk_check_shipped")
-	defer span.End()
+	// trace := otel.Tracer("")
+	// spanCtx, span := trace.Start(ctx, "bulk_check_shipped")
+	// defer span.End()
 
 	// getting query
 	query := db.
@@ -74,7 +78,7 @@ func ProcessShipped(
 
 	rows, err := query.Rows()
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
+		// span.SetStatus(codes.Error, err.Error())
 		return err
 	}
 
@@ -89,7 +93,9 @@ func ProcessShipped(
 			return err
 		}
 
-		_, err = trackingClient.TrackingProcess(spanCtx, &connect.Request[tracking_iface.TrackingProcessRequest]{
+		ctxTimeout, cancel := context.WithTimeout(ctx, time.Second*60)
+
+		_, err = trackingClient.TrackingProcess(ctxTimeout, &connect.Request[tracking_iface.TrackingProcessRequest]{
 			Msg: &tracking_iface.TrackingProcessRequest{
 				Payload: &tracking_iface.TrackingPayload{
 					ShippingId: uint64(item.ShippingID),
@@ -105,8 +111,16 @@ func ProcessShipped(
 			},
 		})
 
+		cancel()
+
 		if err != nil {
-			slog.Error(err.Error())
+			slog.Error(
+				err.Error(),
+				"order_id", item.OrderID,
+				"receipt", item.Receipt,
+				"tx_id", item.TxID,
+				"team_id", item.TeamID,
+			)
 			continue
 		}
 
@@ -114,7 +128,7 @@ func ProcessShipped(
 
 	}
 
-	span.SetStatus(codes.Ok, "")
+	// span.SetStatus(codes.Ok, "")
 	return nil
 }
 

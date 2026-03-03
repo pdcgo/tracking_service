@@ -58,7 +58,7 @@ func (t *trackingServiceImpl) TrackingGet(
 	// 	},
 	// )
 
-	err = t.tracker(trackProcess)
+	_, err = t.tracker(trackProcess)
 
 	if err != nil {
 		return connect.NewResponse(&res), err

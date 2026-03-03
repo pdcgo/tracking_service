@@ -12,7 +12,6 @@ import (
 	"github.com/pdcgo/shared/custom_connect"
 	"github.com/pdcgo/shared/db_connect"
 	"github.com/pdcgo/shared/interfaces/authorization_iface"
-	"github.com/pdcgo/shared/pkg/cloud_logging"
 	"github.com/pdcgo/shared/pkg/ware_cache"
 	"github.com/urfave/cli/v3"
 	"gorm.io/gorm"
@@ -67,6 +66,12 @@ func NewApp(
 ) App {
 	return &cli.Command{
 		Name: "tracking service",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "log-local",
+				Value: false,
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:   "check_order",
@@ -78,7 +83,7 @@ func NewApp(
 }
 
 func main() {
-	cloud_logging.SetCloudLoggingDefault()
+
 	cancel, err := custom_connect.InitTracer("tracking-service")
 	if err != nil {
 		panic(err)

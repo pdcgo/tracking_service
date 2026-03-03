@@ -17,7 +17,7 @@ func NewSpxUndergroundTracker() common_helper.NextHandlerParam[*TrackProcess] {
 	}
 
 	return func(next common_helper.NextFuncParam[*TrackProcess]) common_helper.NextFuncParam[*TrackProcess] {
-		return func(data *TrackProcess) error {
+		return func(data *TrackProcess) (*TrackProcess, error) {
 			var err error
 			req := data.Req
 			trackInfo := data.Res
@@ -35,7 +35,7 @@ func NewSpxUndergroundTracker() common_helper.NextHandlerParam[*TrackProcess] {
 				return next(data.WithError(err))
 			}
 
-			return nil
+			return data, nil
 		}
 	}
 }

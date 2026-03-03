@@ -23,7 +23,7 @@ type ToniRes struct {
 
 func NewToniUndergroundTracker(endpoint string) common_helper.NextHandlerParam[*TrackProcess] {
 	return func(next common_helper.NextFuncParam[*TrackProcess]) common_helper.NextFuncParam[*TrackProcess] {
-		return func(data *TrackProcess) error {
+		return func(data *TrackProcess) (*TrackProcess, error) {
 
 			var hasil ToniRes
 			var err error
@@ -93,7 +93,7 @@ func NewToniUndergroundTracker(endpoint string) common_helper.NextHandlerParam[*
 
 			}
 
-			return nil
+			return data, nil
 		}
 	}
 }

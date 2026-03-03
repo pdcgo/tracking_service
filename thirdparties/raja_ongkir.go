@@ -17,7 +17,7 @@ type RajaOngkirKey struct {
 func NewRajaOngkirTracker(keys *raja_ongkir.ApiKey) common_helper.NextHandlerParam[*TrackProcess] {
 
 	return func(next common_helper.NextFuncParam[*TrackProcess]) common_helper.NextFuncParam[*TrackProcess] {
-		return func(data *TrackProcess) error {
+		return func(data *TrackProcess) (*TrackProcess, error) {
 			req := data.Req
 			trackInfo := data.Res
 
@@ -27,7 +27,7 @@ func NewRajaOngkirTracker(keys *raja_ongkir.ApiKey) common_helper.NextHandlerPar
 			// getting courier
 			courier := IDHelper(req.ShippingId)
 			if courier == "" {
-				return fmt.Errorf("unsupported tracking with shipping id %d", req.ShippingId)
+				return data, fmt.Errorf("unsupported tracking with shipping id %d", req.ShippingId)
 			}
 
 			res, err := raja_ongkir.KomerceTrack(keys, req.Receipt, courier)
@@ -42,7 +42,7 @@ func NewRajaOngkirTracker(keys *raja_ongkir.ApiKey) common_helper.NextHandlerPar
 			for _, item := range res.Data.Manifest {
 				ts, err := item.GetTimestamp()
 				if err != nil {
-					return err
+					return data, err
 				}
 
 				histories = append(histories, &tracking_iface.HistoryItem{
@@ -64,11 +64,11 @@ func NewRajaOngkirTracker(keys *raja_ongkir.ApiKey) common_helper.NextHandlerPar
 
 			default:
 				trackInfo.Status = tracking_iface.Status_STATUS_UNSPECIFIED
-				return fmt.Errorf("[raja_ongkir] status %s not listed %s", res.Data.Summary.Status, req.Receipt)
+				return data, fmt.Errorf("[raja_ongkir] status %s not listed %s", res.Data.Summary.Status, req.Receipt)
 
 			}
 
-			return nil
+			return data, nil
 		}
 	}
 }
