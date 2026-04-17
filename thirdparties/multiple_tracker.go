@@ -17,18 +17,18 @@ func NewMultipleTracker(cfg *configs.AppConfig) common_helper.NextFuncParam[*Tra
 	trackingCfg := cfg.TrackingService
 
 	spxTracker := NewSpxUndergroundTracker()
-	toniTracker := NewToniUndergroundTracker(trackingCfg.ToniUndergroundEnpoint)
+	// toniTracker := NewToniUndergroundTracker(trackingCfg.ToniUndergroundEnpoint)
 	rajaOngkirTracker := NewRajaOngkirTracker(raja_ongkir.NewApiKey(trackingCfg.RajaOngkirKey))
 
 	spxPriority := common_helper.NewChainParam(
 		spxTracker,
-		toniTracker,
+		// toniTracker,
 		rajaOngkirTracker,
 		fallbackErr,
 	)
 
 	defaultPriority := common_helper.NewChainParam(
-		toniTracker,
+		// toniTracker,
 		rajaOngkirTracker,
 		fallbackErr,
 	)
